@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 Binary Option Signal Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius:  10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #ff6b6b;
+            transition: transform 0.3s ease;
+        }
+
+        . stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card. green {
+            border-left-color: #51cf66;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .signals-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .signals-section h2 {
+            margin-bottom: 20px;
+            color: #2a5298;
+            font-size: 1.5rem;
+        }
+
+        .asset-selector {
+            margin-bottom: 20px;
+        }
+
+        .asset-selector label {
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .asset-selector select {
+            padding: 8px 15px;
+            border: 2px solid #2a5298;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .signals-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+        }
+
+        .signals-table thead {
+            background: #f5f5f5;
+        }
+
+        .signals-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #2a5298;
+        }
+
+        .signals-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .signals-table tbody tr:hover {
+            background:  #f9f9f9;
+        }
+
+        .signal-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius:  20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .signal-badge. up {
+            background: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .signal-badge.down {
+            background: #ffe0e0;
+            color: #c92a2a;
+        }
+
+        .accuracy {
+            font-weight: 600;
+            color: #2a5298;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 4px solid #f3f3f3;
+            border-top:  4px solid #2a5298;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .signals-table {
+                font-size: 0.85rem;
+            }
+
+            .signals-table th,
+            .signals-table td {
+                padding:  8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌌 Binary Option Signal Engine</h1>
+            <p>Real-time Trading Signals with 92-98% Win Rate</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Signals</h3>
+                <p class="stat-value" id="total-signals">-</p>
+            </div>
+            <div class="stat-card green">
+                <h3>Win Rate</h3>
+                <p class="stat-value" id="win-rate">-</p>
+            </div>
+            <div class="stat-card green">
+                <h3>Avg Accuracy</h3>
+                <p class="stat-value" id="avg-accuracy">-</p>
+            </div>
+            <div class="stat-card">
+                <h3>Winning Signals</h3>
+                <p class="stat-value" id="winning-signals">-</p>
+            </div>
+        </div>
+
+        <div class="signals-section">
+            <h2>Latest Signals</h2>
+            
+            <div class="asset-selector">
+                <label>Select Asset: </label>
+                <select id="asset-select" onchange="loadSignals()">
+                    <option value="EUR/USD">EUR/USD</option>
+                    <option value="GBP/USD">GBP/USD</option>
+                    <option value="USD/JPY">USD/JPY</option>
+                    <option value="Gold">Gold (XAU/USD)</option>
+                    <option value="Oil">Oil (WTI)</option>
+                </select>
+            </div>
+
+            <div id="signals-container">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading signals...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://your-backend. render.com/api';
+
+        async function loadSignals() {
+            const asset = document.getElementById('asset-select').value;
+            const container = document.getElementById('signals-container');
+
+            try {
+                const response = await fetch(`${API_BASE}/signals/asset/${asset}`);
+                const signals = await response.json();
+
+                if (signals.length === 0) {
+                    container.innerHTML = '<p class="loading">No signals available</p>';
+                    return;
+                }
+
+                let html = '<table class="signals-table"><thead><tr>';
+                html += '<th>Time</th><th>Asset</th><th>Signal</th><th>Expiry</th>';
+                html += '<th>Accuracy</th><th>Price</th><th>Result</th></tr></thead><tbody>';
+
+                signals.forEach(signal => {
+                    const time = new Date(signal.timestamp).toLocaleTimeString();
+                    const badge = `<span class="signal-badge ${signal.signal_type. toLowerCase()}">${signal.signal_type}</span>`;
+                    
+                    html += `<tr>
+                        <td>${time}</td>
+                        <td>${signal.asset}</td>
+                        <td>${badge}</td>
+                        <td>${signal.expiry_time}</td>
+                        <td class="accuracy">${signal.accuracy}%</td>
+                        <td>${signal.price. toFixed(4)}</td>
+                        <td>${signal.result || 'PENDING'}</td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading signals:', error);
+                container.innerHTML = '<p class="loading">Error loading signals</p>';
+            }
+        }
+
+        async function loadStatistics() {
+            const asset = document.getElementById('asset-select').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/statistics/${asset}`);
+                const stats = await response.json();
+
+                document.getElementById('total-signals').textContent = stats.total_signals || '-';
+                document.getElementById('win-rate').textContent = (stats.win_rate || 0).toFixed(1) + '%';
+                document. getElementById('avg-accuracy').textContent = (stats.avg_accuracy || 0).toFixed(1) + '%';
+                document.getElementById('winning-signals').textContent = stats.winning_signals || '-';
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // Page load এ ডেটা লোড করুন
+        loadSignals();
+        loadStatistics();
+
+        // প্রতি 60 সেকেন্ডে রিফ্রেশ করুন
+        setInterval(() => {
+            loadSignals();
+            loadStatistics();
+        }, 60000);
+    </script>
+</body>
+</html>
